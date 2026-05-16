@@ -8,3 +8,10 @@ export type ChatResponse = {
   conversationId: string;
   reply: string;
 };
+
+export type Conversation = {
+  id: string;
+  title: string;
+  messages: Message[];
+  conversationId?: string;
+};

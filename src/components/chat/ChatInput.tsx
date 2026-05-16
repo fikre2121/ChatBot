@@ -1,43 +1,40 @@
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
-export default function ChatInput({ onSend, loading }: any) {
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+type Props = {
+  onSend: (message: string) => void;
+  loading: boolean;
+};
+
+export default function ChatInput({ onSend, loading }: Props) {
   const [text, setText] = useState("");
 
   const handleSend = () => {
-    const trimmed = text.trim();
+    if (!text.trim()) return;
 
-    // 🔥 prevent empty messages
-    if (!trimmed || loading) return;
+    onSend(text);
 
-    onSend(trimmed);
     setText("");
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSend();
-    }
-  };
-
   return (
-    <div className="flex gap-2 max-w-3xl mx-auto w-full">
+    <div className="flex items-center gap-3 rounded-3xl border border-zinc-700 bg-zinc-900 p-3">
       <Input
+        placeholder="Message ChatGPT..."
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Message..."
-        className="bg-zinc-900 border-zinc-700 text-white"
-        disabled={loading}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSend();
+          }
+        }}
+        className="border-none bg-transparent text-white shadow-none focus-visible:ring-0"
       />
 
-      <Button
-        onClick={handleSend}
-        disabled={loading || !text.trim()}
-        className="bg-blue-600 hover:bg-blue-700"
-      >
-        {loading ? "Sending..." : "Send"}
+      <Button onClick={handleSend} disabled={loading} className="rounded-full">
+        Send
       </Button>
     </div>
   );

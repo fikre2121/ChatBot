@@ -1,51 +1,138 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sendMessage } from "@/lib/api";
-import type { Message } from "@/types/chat";
+import type { Conversation, Message } from "@/types/chat";
 
 export const useChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
 
-  const send = async (text: string) => {
-    if (!text.trim()) return;
+  // LOAD FROM LOCAL STORAGE
+  useEffect(() => {
+    const saved = localStorage.getItem("chat_conversations");
 
-    // 1. optimistic UI (user message instantly)
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    if (saved) {
+      const parsed: Conversation[] = JSON.parse(saved);
+
+      setConversations(parsed);
+
+      if (parsed.length > 0) {
+        setActiveChatId(parsed[0].id);
+      }
+    }
+  }, []);
+
+  // SAVE TO LOCAL STORAGE
+  useEffect(() => {
+    localStorage.setItem("chat_conversations", JSON.stringify(conversations));
+  }, [conversations]);
+
+  // CURRENT ACTIVE CHAT
+  const activeConversation = conversations.find((c) => c.id === activeChatId);
+
+  // CREATE NEW CHAT
+  const createNewChat = () => {
+    const newChat: Conversation = {
+      id: crypto.randomUUID(),
+      title: "New Chat",
+      messages: [],
+    };
+
+    setConversations((prev) => [newChat, ...prev]);
+
+    setActiveChatId(newChat.id);
+  };
+
+  // SEND MESSAGE
+  const send = async (text: string) => {
+    if (!activeConversation) return;
+
+    const trimmed = text.trim();
+
+    if (!trimmed || loading) return;
+
+    // USER MESSAGE
+    const userMessage: Message = {
+      role: "user",
+      content: trimmed,
+    };
+
+    // UPDATED MESSAGE ARRAY
+    const updatedMessages: Message[] = [
+      ...activeConversation.messages,
+      userMessage,
+    ];
+
+    // UPDATE UI INSTANTLY
+    setConversations((prev) =>
+      prev.map((chat) =>
+        chat.id === activeChatId
+          ? {
+              ...chat,
+              messages: updatedMessages,
+            }
+          : chat,
+      ),
+    );
 
     setLoading(true);
 
     try {
-      console.log("📤 SENDING TO BACKEND:", {
-        prompt: text,
-        conversationId,
-      });
+      // BUILD PAYLOAD
+      const payload: {
+        prompt: string;
+        conversationId?: string;
+      } = {
+        prompt: trimmed,
+      };
 
-      // 2. call backend
-      const res = await sendMessage({
-        prompt: text,
-        conversationId,
-      });
+      // ATTACH CONVERSATION ID IF EXISTS
+      if (activeConversation.conversationId) {
+        payload.conversationId = activeConversation.conversationId;
+      }
 
-      console.log("📥 BACKEND RESPONSE:", res);
+      // SEND TO BACKEND
+      const response = await sendMessage(payload);
 
-      // 3. store conversationId (CRITICAL FOR MEMORY)
-      setConversationId(res.conversationId);
+      // AI MESSAGE
+      const aiMessage: Message = {
+        role: "assistant",
+        content: response.reply,
+      };
 
-      // 4. add AI message
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: res.reply },
-      ]);
+      // UPDATE CONVERSATION WITH AI RESPONSE
+      setConversations((prev) =>
+        prev.map((chat) =>
+          chat.id === activeChatId
+            ? {
+                ...chat,
+                conversationId: response.conversationId,
+
+                title:
+                  chat.messages.length === 0
+                    ? trimmed.slice(0, 30)
+                    : chat.title,
+
+                messages: [...updatedMessages, aiMessage],
+              }
+            : chat,
+        ),
+      );
     } catch (err) {
-      console.error("❌ CHAT ERROR:", err);
+      console.error("❌ Chat Error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   return {
-    messages,
+    conversations,
+    activeConversation,
+    activeChatId,
+    setActiveChatId,
+    createNewChat,
     send,
     loading,
   };

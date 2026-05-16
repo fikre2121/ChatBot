@@ -1,20 +1,30 @@
-import MessageBubble from "./MessageBubble";
+import type { Message } from "@/types/chat";
 
-type Message = {
-  role: "user" | "assistant";
-  content: string;
+type Props = {
+  messages: Message[];
 };
 
-export default function MessageList({ messages }: { messages: Message[] }) {
+export default function MessageList({ messages }: Props) {
   return (
-    <div className="space-y-4 max-w-3xl mx-auto w-full">
-      {messages.length === 0 ? (
-        <div className="text-center text-zinc-500 mt-10">
-          Start a conversation 👋
+    <div className="space-y-6">
+      {messages.map((message, index) => (
+        <div
+          key={index}
+          className={`flex ${
+            message.role === "user" ? "justify-end" : "justify-start"
+          }`}
+        >
+          <div
+            className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+              message.role === "user"
+                ? "bg-white text-black"
+                : "bg-zinc-800 text-white"
+            }`}
+          >
+            {message.content}
+          </div>
         </div>
-      ) : (
-        messages.map((msg, i) => <MessageBubble key={i} message={msg} />)
-      )}
+      ))}
     </div>
   );
 }

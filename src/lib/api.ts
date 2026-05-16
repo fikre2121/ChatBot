@@ -1,11 +1,15 @@
 import type { ChatResponse } from "@/types/chat";
 
-const BASE_URL = "http://localhost:3000/api/chat";
-
-export const sendMessage = async (payload: {
+type SendMessagePayload = {
   prompt: string;
-  conversationId: string | null;
-}): Promise<ChatResponse> => {
+  conversationId?: string; 
+};
+
+const BASE_URL = "http://localhost:5000/api/chat";
+
+export const sendMessage = async (
+  payload: SendMessagePayload,
+): Promise<ChatResponse> => {
   const res = await fetch(BASE_URL, {
     method: "POST",
     headers: {
