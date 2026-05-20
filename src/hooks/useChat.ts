@@ -88,12 +88,10 @@ export const useChat = () => {
         prompt: trimmed,
       };
 
-      // ATTACH CONVERSATION ID IF EXISTS
       if (activeConversation.conversationId) {
         payload.conversationId = activeConversation.conversationId;
       }
 
-      // SEND TO BACKEND
       const response = await sendMessage(payload);
 
       // AI MESSAGE
@@ -102,7 +100,6 @@ export const useChat = () => {
         content: response.reply,
       };
 
-      // UPDATE CONVERSATION WITH AI RESPONSE
       setConversations((prev) =>
         prev.map((chat) =>
           chat.id === activeChatId
