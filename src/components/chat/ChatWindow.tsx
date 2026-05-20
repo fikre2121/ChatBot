@@ -23,7 +23,6 @@ export default function ChatWindow() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // AUTO SCROLL ONLY CHAT AREA
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -105,7 +104,6 @@ export default function ChatWindow() {
             </div>
           </div>
 
-          {/* CHAT SCROLL AREA */}
           <div className="min-h-0 flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="mx-auto flex w-full max-w-3xl flex-col px-4 py-6">
@@ -116,7 +114,6 @@ export default function ChatWindow() {
             </ScrollArea>
           </div>
 
-          {/* FIXED INPUT */}
           <div className="shrink-0 border-t border-zinc-800 bg-[#212121] px-3 py-4 sm:px-4">
             <div className="mx-auto w-full max-w-3xl">
               <ChatInput onSend={send} loading={loading} />
