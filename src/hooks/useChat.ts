@@ -65,7 +65,6 @@ export const useChat = () => {
       userMessage,
     ];
 
-    // UPDATE UI INSTANTLY
     setConversations((prev) =>
       prev.map((chat) =>
         chat.id === activeChatId
@@ -80,7 +79,6 @@ export const useChat = () => {
     setLoading(true);
 
     try {
-      // BUILD PAYLOAD
       const payload: {
         prompt: string;
         conversationId?: string;
