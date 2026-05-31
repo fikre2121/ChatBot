@@ -24,15 +24,12 @@ export const useChat = () => {
     }
   }, []);
 
-  // SAVE TO LOCAL STORAGE
   useEffect(() => {
     localStorage.setItem("chat_conversations", JSON.stringify(conversations));
   }, [conversations]);
 
-  // CURRENT ACTIVE CHAT
   const activeConversation = conversations.find((c) => c.id === activeChatId);
 
-  // CREATE NEW CHAT
   const createNewChat = () => {
     const newChat: Conversation = {
       id: crypto.randomUUID(),
