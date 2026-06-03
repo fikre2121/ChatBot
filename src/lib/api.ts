@@ -20,7 +20,7 @@ export const sendMessage = async (
 
   const data = await res.json();
 
-  console.log("📥 API RESPONSE:", data);
+  console.log(" API RESPONSE:", data);
 
   if (!res.ok) {
     throw new Error(data.message || "Request failed");
