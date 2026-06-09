@@ -67,6 +67,7 @@ export default function ChatWindow() {
           </div>
 
           {/* CONVERSATIONS */}
+          {/* to adde the conversatik */}
           <ScrollArea className="flex-1">
             <div className="space-y-1 p-2">
               {conversations.map((chat) => (
